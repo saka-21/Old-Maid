@@ -1,0 +1,1 @@
+$human1 pull $human2 's card.
