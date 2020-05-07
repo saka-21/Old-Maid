@@ -19,7 +19,7 @@ class CreateCard(object):
 class Game(CreateCard):
     def __init__(self):
         super().__init__()
-        first_message = console.get_template("start_game.txt")
+        first_message = console.get_template("start_game.txt", "red")
         print(first_message)
         self.name1 = "A"
         self.name2 = "B"
@@ -41,7 +41,7 @@ class Game(CreateCard):
         while len(self.sv_list) > 0:
             for player in self.players:
                 player.append(self.sv_list.pop())
-                if len(self.sv_list) == 0:  # list内が空になったらそこで終了
+                if len(self.sv_list) == 0:
                     break
 
         for (name, player) in zip(self.names, self.players):
@@ -310,6 +310,7 @@ class Game(CreateCard):
 
                             else:
                                 print_result()
+
     def final_result(self):
         key_1 = [k for k, v in self.n_r_dict.items() if v == "①"][0]
         key_2 = [k for k, v in self.n_r_dict.items() if v == "②"][0]

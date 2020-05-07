@@ -1,7 +1,8 @@
-import babanuki_apply
+from babanuki_dir.models import babanuki
+
 
 def main():
-    game = babanuki_apply.Game()
+    game = babanuki.Game()
     game.deal()
     game.first_discard()
     game.turn()
