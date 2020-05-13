@@ -27,7 +27,7 @@ def get_template(template_file_path, color):
     with open(template, "r") as template_file:
         contents = template_file.read()
         contents = contents.rstrip(os.linesep)
-        contents = '{sep}{splitter}{sep}{contents}{sep}{splitter}{sep}'.format(
+        contents = '{sep}{contents}{sep}{splitter}{sep}'.format(
             contents=contents, splitter="=" * 60, sep=os.linesep)
         contents = termcolor.colored(contents, color)
     return contents
