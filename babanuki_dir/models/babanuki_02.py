@@ -125,145 +125,108 @@ class Game(CreateCard):
 
     def turn(self):
         # 名前とカードを紐づけるために辞書化
-        n_r_dict = dict(zip(self.player_names, self.results_list))
+        dict_deck = dict(zip(self.player_names, self.results_list))
         decide_order = console.get_template('decide_order.txt', 'green')
         print(decide_order)
         time.sleep(.5)
-        random.shuffle(self.player_names)
-        print(' → '.join(self.player_names))
-        self.n_r_dict = n_r_dict
+        self.players_order = random.sample(self.player_names, len(self.player_names))
+        print(' → '.join(self.players_order))
+        self.dict_deck = dict_deck
 
     def play_game(self):
         def print_result():
-            for (name, player) in zip(self.player_names, self.n_r_dict):
-                print(name + " : " + ",  ".join(self.n_r_dict[name]))
+            for (name, player) in zip(self.player_names, self.dict_deck):
+                print(name + " : " + ",  ".join(self.dict_deck[name]))
 
-        while ["BABA"] not in list(self.n_r_dict.values()):
+        while ["BABA"] not in list(self.dict_deck.values()):
             for i in range(0, 3):
                 n = (i + 3) % 3
                 m = (i + 4) % 3
-                if "①" not in list(self.n_r_dict.values()):
+                
+                if "①" not in list(self.dict_deck.values()):
                     print(
-                        "\n" + self.player_names[n] + "さんが" + self.player_names[
+                        "\n" + self.players_order[n] + "さんが" + self.players_order[
                             m] + "さんのカードをひいてください。(y/n): ")
                     time.sleep(.5)
-                    random.shuffle(self.n_r_dict[self.player_names[m]])
-                    self.n_r_dict[self.player_names[n]].append(
-                        self.n_r_dict[self.player_names[m]].pop())
-                    if self.n_r_dict[self.player_names[m]] == []:
-                        key = [k for k, v in self.n_r_dict.items() if v == []][
+                    random.shuffle(self.dict_deck[self.players_order[m]])
+                    self.dict_deck[self.players_order[n]].append(
+                        self.dict_deck[self.players_order[m]].pop())
+                    if self.dict_deck[self.players_order[m]] == []:
+                        key = [k for k, v in self.dict_deck.items() if v == []][
                             0]
                         print(key)
-                        self.n_r_dict[key] = "①"
+                        self.dict_deck[key] = "①"
                         print_result()
                     else:
                         print_result()
 
                     print("\nDiscard if you have a pair (y/n): ")
                     time.sleep(.5)
-                    #####################################################################
+
+                    # 重複削除
                     player_sub = []
-                    for i in self.n_r_dict[self.player_names[n]]:
+                    for i in self.dict_deck[self.players_order[n]]:
                         t = i[:2]  # 数字のみ取得するため、２文字目までを取得する
                         player_sub.append(t)
-                    # print("player_sub; ", player_sub)
-                    # 偶数枚の場合
-                    dup_2_4 = []
-                    for x in set(player_sub):
-                        if player_sub.count(x) == 2:
-                            dup_2_4.append(x)
-                    # print("dup_2_4: ", dup_2_4)
 
-                    # まず偶数枚の数字を抜き出す
-                    result_2_4 = list(
-                        filter(lambda x: x in dup_2_4, player_sub))
-                    # print("result_2_4; ", result_2_4)
+                    rules = Rules()
+                    index_even = rules.duplication_2_4(player_sub)
 
-                    # 重複しているindexを取得
-                    c_index_2_4 = []
-                    for i, x in enumerate(player_sub):
-                        for h in result_2_4:
-                            if x == h:
-                                c_index_2_4.append(i)
-                    c_index_2_4 = list(set(c_index_2_4))
-                    # print("c_index_2_4; ", c_index_2_4)
+                    for i in sorted(index_even, reverse=True):
+                        self.dict_deck[self.players_order[n]].pop(i)
 
-                    for i in sorted(c_index_2_4, reverse=True):
-                        self.n_r_dict[self.player_names[n]].pop(i)
-
-                    ########################################################################
-                    if self.n_r_dict[self.player_names[n]] == []:
-                        key = [k for k, v in self.n_r_dict.items() if v == []][
+                    # 空になった場合
+                    if self.dict_deck[self.players_order[n]] == []:
+                        key = [k for k, v in self.dict_deck.items() if v == []][
                             0]
-                        # print(key)
-                        self.n_r_dict[key] = "①"
+                        self.dict_deck[key] = "①"
                         print_result()
 
                     else:
                         print_result()
 
-                elif self.n_r_dict[self.player_names[n]] == "①":
+                elif self.dict_deck[self.players_order[n]] == "①":
                     n = (i + 4) % 3
                     m = (i + 5) % 3
 
-                    while '②' not in list(self.n_r_dict.values()):
+                    while '②' not in list(self.dict_deck.values()):
                         for a, b in [[n, m], [m, n]]:
-                            # y = input("\n" + self.player_names[a] + "さんが" + self.player_names[b] + "さんのカードをひいてください。(y/n): ")
-                            print("\n" + self.player_names[a] + "さんが" +
-                                  self.player_names[
+                            print("\n" + self.players_order[a] + "さんが" +
+                                  self.players_order[
                                       b] + "さんのカードをひいてください。(y/n): ")
-                            # if y == "y":
                             time.sleep(.5)
-                            random.shuffle(self.n_r_dict[self.player_names[b]])
-                            self.n_r_dict[self.player_names[a]].append(
-                                self.n_r_dict[self.player_names[b]].pop(0))
-                            if self.n_r_dict[self.player_names[b]] == []:
-                                key = [k for k, v in self.n_r_dict.items() if
+                            random.shuffle(self.dict_deck[self.players_order[b]])
+                            self.dict_deck[self.players_order[a]].append(
+                                self.dict_deck[self.players_order[b]].pop(0))
+                            if self.dict_deck[self.players_order[b]] == []:
+                                key = [k for k, v in self.dict_deck.items() if
                                        v == []][0]
                                 print(key)
-                                self.n_r_dict[key] = "②"
+                                self.dict_deck[key] = "②"
                                 print_result()
                             else:
                                 print_result()
-                            # y = input("\nペアができれば捨ててください。(y/n): ")
                             print("\nペアができれば捨ててください。(y/n): ")
-                            # if y == "y":
                             time.sleep(.5)
+
+                            # 重複削除
                             player_sub = []
-                            for i in self.n_r_dict[self.player_names[a]]:
+                            for i in self.dict_deck[self.players_order[n]]:
                                 t = i[:2]  # 数字のみ取得するため、２文字目までを取得する
                                 player_sub.append(t)
-                            # print("player_sub; ", player_sub)
-                            # 偶数枚の場合
-                            dup_2_4 = []
-                            for x in set(player_sub):
-                                if player_sub.count(x) == 2:
-                                    dup_2_4.append(x)
-                            # print("dup_2_4: ", dup_2_4)
 
-                            # まず偶数枚の数字を抜き出す
-                            result_2_4 = list(
-                                filter(lambda x: x in dup_2_4, player_sub))
-                            # print("result_2_4; ", result_2_4)
+                            rules = Rules()
+                            index_even = rules.duplication_2_4(player_sub)
 
-                            # 重複しているindexを取得
-                            c_index_2_4 = []
-                            for i, x in enumerate(player_sub):
-                                for h in result_2_4:
-                                    if x == h:
-                                        c_index_2_4.append(i)
-                            c_index_2_4 = list(set(c_index_2_4))
-                            # print("c_index_2_4; ", c_index_2_4)
+                            for i in sorted(index_even, reverse=True):
+                                self.dict_deck[self.players_order[a]].pop(i)
 
-                            for i in sorted(c_index_2_4, reverse=True):
-                                self.n_r_dict[self.player_names[a]].pop(i)
-                            # print("self.n_r_dict[self.player_names[n]]; ", self.n_r_dict[self.player_names[n]])
-                            ########################################################################
-                            if self.n_r_dict[self.player_names[a]] == []:
-                                key = [k for k, v in self.n_r_dict.items() if
+                            # 空になった場合
+                            if self.dict_deck[self.players_order[a]] == []:
+                                key = [k for k, v in self.dict_deck.items() if
                                        v == []][0]
                                 # print(key)
-                                self.n_r_dict[key] = "②"
+                                self.dict_deck[key] = "②"
                                 print_result()
                                 break
 
@@ -271,62 +234,42 @@ class Game(CreateCard):
                                 print_result()
 
 
-                elif self.n_r_dict[self.player_names[(n + 2) % 3]] == "①":
+                elif self.dict_deck[self.players_order[(n + 2) % 3]] == "①":
                     n = (i + 3) % 3
                     m = (i + 4) % 3
-                    while '②' not in list(self.n_r_dict.values()):
+                    while '②' not in list(self.dict_deck.values()):
                         for a, b in [[n, m], [m, n]]:
-                            # y = input("\n" + self.player_names[a] + "さんが" + self.player_names[b] + "さんのカードをひいてください。(y/n): ")
-                            print("\n" + self.player_names[a] + "さんが" +
-                                  self.player_names[
+                            print("\n" + self.players_order[a] + "さんが" +
+                                  self.players_order[
                                       b] + "さんのカードをひいてください。(y/n): ")
-                            # if y == "y":
                             time.sleep(.5)
-                            self.n_r_dict[self.player_names[a]].append(
-                                self.n_r_dict[self.player_names[b]].pop(0))
-                            if self.n_r_dict[self.player_names[b]] == []:
-                                key = [k for k, v in self.n_r_dict.items() if
+                            self.dict_deck[self.players_order[a]].append(
+                                self.dict_deck[self.players_order[b]].pop(0))
+                            if self.dict_deck[self.players_order[b]] == []:
+                                key = [k for k, v in self.dict_deck.items() if
                                        v == []][0]
-                                self.n_r_dict[key] = "②"
+                                self.dict_deck[key] = "②"
                                 print_result()
                             else:
                                 print_result()
-                            # y = input("\nペアができれば捨ててください。(y/n): ")
                             print("\nペアができれば捨ててください。(y/n): ")
-                            # if y == "y":
                             time.sleep(.5)
+
+                            # 重複削除
                             player_sub = []
-                            for i in self.n_r_dict[self.player_names[a]]:
+                            for i in self.dict_deck[self.players_order[n]]:
                                 t = i[:2]  # 数字のみ取得するため、２文字目までを取得する
                                 player_sub.append(t)
-                            # print("player_sub; ", player_sub)
-                            # 偶数枚の場合
-                            dup_2_4 = []
-                            for x in set(player_sub):
-                                if player_sub.count(x) == 2:
-                                    dup_2_4.append(x)
-                            # print("dup_2_4: ", dup_2_4)
 
-                            # まず偶数枚の数字を抜き出す
-                            result_2_4 = list(
-                                filter(lambda x: x in dup_2_4, player_sub))
-                            # print("result_2_4; ", result_2_4)
+                            rules = Rules()
+                            index_even = rules.duplication_2_4(player_sub)
 
-                            # 重複しているindexを取得
-                            c_index_2_4 = []
-                            for i, x in enumerate(player_sub):
-                                for h in result_2_4:
-                                    if x == h:
-                                        c_index_2_4.append(i)
-                            c_index_2_4 = list(set(c_index_2_4))
-                            # print("c_index_2_4; ", c_index_2_4)
-
-                            for i in sorted(c_index_2_4, reverse=True):
-                                self.n_r_dict[self.player_names[a]].pop(i)
-                            if self.n_r_dict[self.player_names[a]] == []:
-                                key = [k for k, v in self.n_r_dict.items() if
+                            for i in sorted(index_even, reverse=True):
+                                self.dict_deck[self.players_order[a]].pop(i)
+                            if self.dict_deck[self.players_order[a]] == []:
+                                key = [k for k, v in self.dict_deck.items() if
                                        v == []][0]
-                                self.n_r_dict[key] = "②"
+                                self.dict_deck[key] = "②"
                                 print_result()
                                 break
 
@@ -334,9 +277,9 @@ class Game(CreateCard):
                                 print_result()
 
     def final_result(self):
-        key_1 = [k for k, v in self.n_r_dict.items() if v == "①"][0]
-        key_2 = [k for k, v in self.n_r_dict.items() if v == "②"][0]
-        key_3 = [k for k, v in self.n_r_dict.items() if v == ["BABA"]][0]
+        key_1 = [k for k, v in self.dict_deck.items() if v == "①"][0]
+        key_2 = [k for k, v in self.dict_deck.items() if v == "②"][0]
+        key_3 = [k for k, v in self.dict_deck.items() if v == ["BABA"]][0]
 
         print("\n=====最終結果=====\n")
         print("1位: {} さん".format(key_1))
