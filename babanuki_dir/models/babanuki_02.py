@@ -139,14 +139,14 @@ class Game(CreateCard):
                 print(name + " : " + ",  ".join(self.dict_deck[name]))
 
         while ["BABA"] not in list(self.dict_deck.values()):
-            for i in range(0, 3):
-                n = (i + 3) % 3
-                m = (i + 4) % 3
+            for i in range(self.num):
+                n = (i + self.num) % self.num
+                m = (i + self.num + 1) % self.num
                 
                 if "①" not in list(self.dict_deck.values()):
                     print(
-                        "\n" + self.players_order[n] + "さんが" + self.players_order[
-                            m] + "さんのカードをひいてください。(y/n): ")
+                        "\n" + self.players_order[n] + " pulls " + self.players_order[
+                            m] + "'s cards")
                     time.sleep(.5)
                     random.shuffle(self.dict_deck[self.players_order[m]])
                     self.dict_deck[self.players_order[n]].append(
@@ -160,7 +160,7 @@ class Game(CreateCard):
                     else:
                         print_result()
 
-                    print("\nDiscard if you have a pair (y/n): ")
+                    print("\nDiscard if you have a pair: ")
                     time.sleep(.5)
 
                     # 重複削除
