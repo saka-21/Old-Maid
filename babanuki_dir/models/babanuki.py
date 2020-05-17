@@ -314,7 +314,7 @@ class Game(CreateCard):
         key_2 = [k for k, v in self.n_r_dict.items() if v == "②"][0]
         key_3 = [k for k, v in self.n_r_dict.items() if v == ["BABA"]][0]
 
-        print("\n=====最終結果=====\n")
+        print('{:^30}'.format('Final-Result'))
         print("1位: {} さん".format(key_1))
         print("2位: {} さん".format(key_2))
         print("3位: {} さん".format(key_3))
