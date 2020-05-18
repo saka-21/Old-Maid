@@ -190,7 +190,7 @@ class Game(CreateCard):
         turn = 1
         n = -1
         while list(self.dict_deck.values()).count('Done!') < self.num - 1:
-            print('\n=== Turn{} =================='.format(turn))
+            print('\n== Turn{} =='.format(turn))
             turn += 1
             n += 1
             if n == self.num:
@@ -229,7 +229,8 @@ class Game(CreateCard):
                 break
 
     def final_result(self):
-        print('\n{:=^30}'.format('Final-Result'))
+        final_result = console.get_template('final_result.txt', 'green')
+        print(final_result)
         for i, name in enumerate(self.ranking_list):
             print("{}位: {}".format(i+1, name))
         n = list(filter(lambda x: x not in self.ranking_list, self.players_order))[0]
