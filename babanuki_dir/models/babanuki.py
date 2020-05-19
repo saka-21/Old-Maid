@@ -87,6 +87,7 @@ class Game(CreateCard):
         deal_cards = console.get_template("deal_cards.txt", "green")
         print(deal_cards)
         players_cards = []
+        print(self.sv_list)
         for i in range(self.num):
             players_cards.append([])
         while len(self.sv_list) > 0:
