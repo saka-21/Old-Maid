@@ -1,22 +1,28 @@
-import random
-
-from babanuki_dir.views import console
+# import random
+#
+# from babanuki_dir.views import console
 
 
 class CreateCard(object):
     def __init__(self):
         suits = ['s', 'h', 'd', 'c']
-        sv_list = []
-        for i in range(1, 14):
+        key = []
+        value = []
+        for i, k in enumerate(range(1, 14), 1):
             for j in suits:
-                sv_list.append(str(i) + "_" + j)
-        sv_list.append("BABA")
-        random.shuffle(sv_list)
-        self.sv_list = sv_list
-        print(sv_list)
+                key.append(str(k) + "_" + j)
+                value.append(i)
+        all_cards = dict(zip(key, value))
+        print(all_cards)
+        print(list(all_cards))
 
+# CreateCard()
 
-class Rules(object):
+class Player(object):
+    def Pull(self):
+
+    def pulled(self):
+
     def duplication_2_4(self, player_only_num):
         # 偶数枚の場合
         dup_even = []
@@ -62,13 +68,15 @@ class Rules(object):
         return player_cards
 
 
-class Game(CreateCard):
+class Dealer(CreateCard):
     def __init__(self):
         super().__init__()
 
-        # ババ抜きを始めます。
+    def first_message(self):
         first_message = console.get_template("start_game.txt", "red")
-        print(first_message)
+        return print(first_message)
+
+class Game(CreateCard):
 
         # 何人で遊びますか？
         how_many = console.get_template('how_many.txt', 'green')
@@ -89,10 +97,10 @@ class Game(CreateCard):
         players_cards = []
         for i in range(self.num):
             players_cards.append([])
-        while len(self.sv_list) > 0:
+        while len(self.all_cards) > 0:
             for player_cards in players_cards:
-                player_cards.append(self.sv_list.pop())
-                if len(self.sv_list) == 0:
+                player_cards.append(self.all_cards.pop())
+                if len(self.all_cards) == 0:
                     break
         self.players_cards = players_cards
         for (name, player) in zip(self.player_names, self.players_cards):
