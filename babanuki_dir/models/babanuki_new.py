@@ -12,9 +12,7 @@ class CreateCard(object):
                 all_cards[key] = i
         all_cards['BABA'] = 0
         self.all_dict = all_cards
-        # print(self.all_dict)
         self.all_list = list(all_cards)
-        # print(self.all_list)
 
 class Dealer(CreateCard):
     def __init__(self):
@@ -84,10 +82,11 @@ class Player(Dealer):
         self.append(card)
         return card
 
-    def delete_dup(self, dealer):
+    def delete_dup(self, dealer, card):
         # 自分自身のカードの数字だけ取得
         only_num_list = []
-        for t in dealer.dict_deck[self.name]:
+        # print('dealer.dict_deck[self.name]:', dealer.dict_deck[self.name])
+        for t in card:
             only_num_list.append(dealer.all_dict[t])
 
         # ２枚、４枚ではないカードの数字を取得
@@ -103,7 +102,8 @@ class Player(Dealer):
         # ３枚あるカードは一枚だけ取得
         key_list_02 = []
         for i in key_list:
-            key_list_02.append(i.pop())
+            if i:
+                key_list_02.append(i.pop())
         # print(key_list_02)
 
         # 削除した後のカードの辞書
@@ -119,10 +119,6 @@ class Player(Dealer):
         return key_list_02
 
 
-    def win(self):
-        return not self.cards
-
-
 class Game(CreateCard):
 
     def play(self):
@@ -135,30 +131,33 @@ class Game(CreateCard):
         dealer.delete_pair()
         self.players = [Player(i, dealer) for i in range(dealer.num)]
         for player in self.players:
-            a = player.delete_dup(dealer)
-            print(player.name, ':' + ",  ".join(a))
+            player.delete_dup(dealer, dealer.dict_deck[player.name])
+        self._show_result()
 
         # GameStart
+        turn = 1
         n = -1
-        for i in range(10):
+        for i in range(20):
             n += 1
             if n == dealer.num:
                 n = 0
             if n == dealer.num - 1:
                 n = -1
+            print('\n== Turn-{} =='.format(turn))
             self._turn(n, dealer)
+            turn += 1
 
     def _turn(self, i, dealer):
         pulled_card = self.players[i].play(self.players[i+1])
+        print('{} pulled {}'.format(self.players[i].name, pulled_card))
+        self._show_result()
+        self.players[i].delete_dup(dealer, self.players[i].cards)
+        dealer.delete_pair()
+        self._show_result()
 
-        # result = self.players[i].play(self.players[i+1])
-        print('pulled_card: ', pulled_card)
-        print(self.players[0].cards)
-        print(self.players[1].cards)
-        print(self.players[2].cards)
-        result = self.players[i].delete_dup(dealer)
-        print('result:', result)
-
+    def _show_result(self):
+        for player in self.players:
+            print(player.name + " : " + ',  '.join(player.cards))
 
 
 if __name__ == '__main__':
