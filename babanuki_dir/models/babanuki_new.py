@@ -62,6 +62,7 @@ class Player(Dealer):
     def __init__(self, index, dealer):
         self.name = dealer.player_names[index]
         self.cards = []
+        self.after_dict = {}
         # print(self.name, ':', self.cards)
         player_dict = {}
         for i in dealer.dict_deck[self.name]:
@@ -70,7 +71,9 @@ class Player(Dealer):
         # print('self.player_dict: ', self.player_dict)
 
     def append(self, card):
+        dealer = Dealer()
         self.cards.append(card)
+        self.after_dict[card] = dealer.all_dict[card]
 
     def release(self, card):
         self.cards.remove(card)
@@ -85,9 +88,7 @@ class Player(Dealer):
 
     def delete_dup(self, dealer, card):
         # 自分自身のカードの数字だけ取得
-        print(card)
         only_num_list = []
-        # print('dealer.dict_deck[self.name]:', dealer.dict_deck[self.name])
         for t in card:
             only_num_list.append(dealer.all_dict[t])
         a = only_num_list
@@ -103,19 +104,23 @@ class Player(Dealer):
         # ２枚、４枚ではないカードのマークを取得
         key_list = []
         for i in set(only_num_list):
-            key_list.append([k for k, v in self.player_dict.items() if v == i])
+            if self.after_dict:
+                key_list.append([k for k, v in self.after_dict.items() if v == i])
+            else:
+                key_list.append([k for k, v in self.player_dict.items() if v == i])
+        print('key_list: ', key_list)
 
         # ３枚あるカードは一枚だけ取得
         key_list_02 = []
         for i in key_list:
             if i:
                 key_list_02.append(i.pop())
-        # print(key_list_02)
+        print('key_list_02: ', key_list_02)
 
         # 削除した後のカードの辞書
         d = {}
         for i in key_list_02:
-            d[i] = self.player_dict[i]
+            d[i] = dealer.all_dict[i]
 
         only_num_list = set(only_num_list)
         after_num_list = list(only_num_list)
@@ -143,7 +148,7 @@ class Game(CreateCard):
         # GameStart
         turn = 1
         n = -1
-        for i in range(40):
+        for i in range(20):
             n += 1
             if n == dealer.num:
                 n = 0
