@@ -1,5 +1,4 @@
 import random
-import itertools
 
 
 class CreateCard(object):
@@ -53,7 +52,7 @@ class Dealer(CreateCard):
             print(name + " : " + ",  ".join(player))
         self.dict_deck = dict(zip(self.player_names, self.players_cards))
 
-    # ペアがあれば捨ててくださ園主問題
+    # ペアがあれば捨ててください
     @staticmethod
     def delete_pair():
         print('\n=== Discard if you have pairs. ===')
@@ -75,6 +74,8 @@ class Player(Dealer):
 
     def release(self, card):
         self.cards.remove(card)
+        # if not self.cards:
+
 
     def play(self, next_player):
         card = random.choice(next_player.cards)
@@ -84,15 +85,20 @@ class Player(Dealer):
 
     def delete_dup(self, dealer, card):
         # 自分自身のカードの数字だけ取得
+        print(card)
         only_num_list = []
         # print('dealer.dict_deck[self.name]:', dealer.dict_deck[self.name])
         for t in card:
             only_num_list.append(dealer.all_dict[t])
+        a = only_num_list
 
         # ２枚、４枚ではないカードの数字を取得
         for x in set(only_num_list):
             if only_num_list.count(x) == 2 or only_num_list.count(x) == 4:
                 only_num_list = [a for a in only_num_list if a != x]
+        if only_num_list == a:
+            self.cards = card
+            return card
 
         # ２枚、４枚ではないカードのマークを取得
         key_list = []
@@ -137,7 +143,7 @@ class Game(CreateCard):
         # GameStart
         turn = 1
         n = -1
-        for i in range(20):
+        for i in range(40):
             n += 1
             if n == dealer.num:
                 n = 0
@@ -151,6 +157,7 @@ class Game(CreateCard):
         pulled_card = self.players[i].play(self.players[i+1])
         print('{} pulled {}'.format(self.players[i].name, pulled_card))
         self._show_result()
+        # print('self.players[i].cards: ', self.players[i].cards)
         self.players[i].delete_dup(dealer, self.players[i].cards)
         dealer.delete_pair()
         self._show_result()
