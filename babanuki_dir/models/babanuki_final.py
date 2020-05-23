@@ -1,19 +1,14 @@
-
 import random
-from itertools import count
 
 
 class Card:
-    SUITS = "SHDC"
+    SUITS = ['S', 'D', 'H', 'C']
     RANKS = [str(x+1) for x in range(13)]
 
     def __init__(self, suit, rank=""):
         self.suit = suit
         self.rank = rank
-        # print('self.rank:', self.rank)
         self.number = rank and Card.RANKS.index(rank) + 1 or 0
-        # print('Card.RANKS.index(rank):', Card.RANKS.index(rank))
-        # print('self.number:', self.number)
         self.label = self.suit + self.rank
 
     def __repr__(self):
@@ -53,8 +48,6 @@ class Player:
 
 
 class Dealer:
-
-
     # ババ抜きを始めます。
     @staticmethod
     def start():
