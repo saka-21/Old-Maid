@@ -13,6 +13,7 @@ class CreateCard(object):
         self.all_dict = all_cards
         self.all_list = list(all_cards)
 
+
 class Dealer(CreateCard):
     def __init__(self):
         super().__init__()
@@ -32,10 +33,12 @@ class Dealer(CreateCard):
         player_name = []
         for i in range(self.num):
             player_name.append(input('Player{} : '.format(i + 1)))
+
         self.player_names = player_name
 
     # カードを配ります。
     def deal(self):
+        self.ranking_list = []
         print('\n=== Here are some cards. ===')
         players_cards = []
         random.shuffle(self.all_list)
@@ -58,17 +61,18 @@ class Dealer(CreateCard):
         print('\n=== Discard if you have pairs. ===')
 
 
+ranking_list = []
+
+
 class Player(Dealer):
     def __init__(self, index, dealer):
         self.name = dealer.player_names[index]
         self.cards = []
         self.after_dict = {}
-        # print(self.name, ':', self.cards)
         player_dict = {}
         for i in dealer.dict_deck[self.name]:
             player_dict[i] = dealer.all_dict[i]
             self.player_dict = player_dict
-        # print('self.player_dict: ', self.player_dict)
 
     def append(self, card):
         dealer = Dealer()
@@ -77,8 +81,9 @@ class Player(Dealer):
 
     def release(self, card):
         self.cards.remove(card)
-        # if not self.cards:
-
+        if not self.cards:
+            ranking_list.append(self.name)
+            self.cards = 'Done!'
 
     def play(self, next_player):
         card = random.choice(next_player.cards)
@@ -108,30 +113,28 @@ class Player(Dealer):
                 key_list.append([k for k, v in self.after_dict.items() if v == i])
             else:
                 key_list.append([k for k, v in self.player_dict.items() if v == i])
-        print('key_list: ', key_list)
 
         # ３枚あるカードは一枚だけ取得
         key_list_02 = []
         for i in key_list:
             if i:
                 key_list_02.append(i.pop())
-        print('key_list_02: ', key_list_02)
 
         # 削除した後のカードの辞書
         d = {}
         for i in key_list_02:
             d[i] = dealer.all_dict[i]
 
-        only_num_list = set(only_num_list)
-        after_num_list = list(only_num_list)
         self.after_dict = d
         self.cards = key_list_02
-        self.only_num_list = after_num_list
-        return key_list_02
+        if not self.cards:
+            ranking_list.append(self.name)
+            self.cards = 'Done!'
+        else:
+            return self.cards
 
 
 class Game(CreateCard):
-
     def play(self):
         # 準備
         dealer = Dealer()
@@ -145,31 +148,72 @@ class Game(CreateCard):
             player.delete_dup(dealer, dealer.dict_deck[player.name])
         self._show_result()
 
-        # GameStart
+        # ゲームスタート
         turn = 1
         n = -1
-        for i in range(20):
+        self.card_list = []
+        # while self.card_list.count('Done!') != dealer.num - 1:
+        while self.card_list.count('Done!') != dealer.num - 2:
+
+            print('\n== Turn-{} =='.format(turn))
             n += 1
             if n == dealer.num:
                 n = 0
             if n == dealer.num - 1:
                 n = -1
-            print('\n== Turn-{} =='.format(turn))
-            self._turn(n, dealer)
-            turn += 1
+            m = n + 1
 
-    def _turn(self, i, dealer):
-        pulled_card = self.players[i].play(self.players[i+1])
-        print('{} pulled {}'.format(self.players[i].name, pulled_card))
+            # 通常のループ
+            if self.players[n].cards != 'Done!' and self.players[m].cards != 'Done!':
+                self._turn(n, m, dealer)
+
+            # 誰かが上がった時のループ
+            else:
+                while True:
+                    if self.players[n].cards != 'Done!':
+                        break
+                    n += 1
+                    if self.players[n].cards != 'Done!':
+                        break
+                while True:
+                    if m == dealer.num - 1:
+                        m = -1
+                    m += 1
+                    if self.players[m].cards != 'Done!':
+                        if m == n:
+                            continue
+                        if m != n:
+                            break
+                self._turn(n, m, dealer)
+
+            self.card_list = []
+            for player in self.players:
+                self.card_list.append(player.cards)
+            turn += 1
+        self._show_final_result(dealer)
+
+    def _turn(self, n, m, dealer):
+        pulled_card = self.players[n].play(self.players[m])
+        print('{} pulled {} of {}'.format(self.players[n].name,
+                                          pulled_card, self.players[m].name))
         self._show_result()
-        # print('self.players[i].cards: ', self.players[i].cards)
-        self.players[i].delete_dup(dealer, self.players[i].cards)
+        self.players[n].delete_dup(dealer, self.players[n].cards)
         dealer.delete_pair()
         self._show_result()
 
     def _show_result(self):
         for player in self.players:
-            print(player.name + " : " + ',  '.join(player.cards))
+            if 'Done!' in player.cards:
+                print(player.name + " : " + ''.join(player.cards))
+            else:
+                print(player.name + " : " + ',  '.join(player.cards))
+
+    def _show_final_result(self, dealer):
+        print('\n======Finel-Result======')
+        for i, name in enumerate(ranking_list):
+            print("{}位: {}".format(i+1, name))
+        n = self.players[self.card_list.index(['BABA'])].name
+        print("{}位: {}".format(dealer.num, n))
 
 
 if __name__ == '__main__':
